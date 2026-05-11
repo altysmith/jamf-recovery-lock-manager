@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jamf Recovery Lock Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel hero">
+        <p class="eyebrow">Local-Only Flask Utility</p>
+        <h1>Jamf Pro Recovery Lock Manager</h1>
+        <p class="lede">
+          Credentials stay on the Mac running this app. The browser only sends form posts to the local Flask server.
+        </p>
+      </section>
+
+      {% if env_error %}
+      <section class="panel status error">
+        <h2>Environment Setup Needed</h2>
+        <p>{{ env_error }}</p>
+        <p>Set <code>JAMF_URL</code>, <code>CLIENT_ID</code>, and <code>CLIENT_SECRET</code> in the Terminal before launch.</p>
+      </section>
+      {% endif %}
+
+      <section class="panel">
+        <form method="post" action="{{ url_for('handle_action') }}" class="stack">
+          <label for="serial_number">Mac Serial Number</label>
+          <input
+            id="serial_number"
+            name="serial_number"
+            type="text"
+            value="{{ serial_number }}"
+            placeholder="Enter serial number"
+            autocomplete="off"
+            required
+          >
+
+          <label for="new_password">New Recovery Lock Password</label>
+          <input
+            id="new_password"
+            name="new_password"
+            type="text"
+            placeholder="Used only for Set New Password"
+            autocomplete="off"
+          >
+
+          <div class="actions">
+            <button type="submit" name="action" value="lookup">Look Up Device</button>
+            <button type="submit" name="action" value="view_password">View Recovery Lock Password</button>
+            <button type="submit" name="action" value="clear_lock">Clear Recovery Lock</button>
+            <button type="submit" name="action" value="set_lock">Set New Password</button>
+          </div>
+        </form>
+      </section>
+
+      {% if device %}
+      <section class="panel">
+        <h2>Device</h2>
+        <dl class="device-grid">
+          <div>
+            <dt>Name</dt>
+            <dd>{{ device.name }}</dd>
+          </div>
+          <div>
+            <dt>Serial</dt>
+            <dd>{{ device.serial_number }}</dd>
+          </div>
+          <div>
+            <dt>Inventory ID</dt>
+            <dd>{{ device.inventory_id }}</dd>
+          </div>
+          <div>
+            <dt>Management ID</dt>
+            <dd>{{ device.management_id or 'Not returned' }}</dd>
+          </div>
+          <div>
+            <dt>UDID</dt>
+            <dd>{{ device.udid or 'Not returned' }}</dd>
+          </div>
+        </dl>
+      </section>
+      {% endif %}
+
+      {% if action_result %}
+      <section class="panel status {{ action_result.kind }}">
+        <h2>Command Status</h2>
+        <p>{{ action_result.message }}</p>
+        {% if action_result.status_code %}
+        <p><strong>HTTP Status:</strong> {{ action_result.status_code }}</p>
+        {% endif %}
+        {% if action_result.recovery_lock_status %}
+        <p><strong>Recovery Lock Status:</strong> {{ action_result.recovery_lock_status }}</p>
+        {% endif %}
+        {% if action_result.recovery_lock_status_note %}
+        <p class="note">{{ action_result.recovery_lock_status_note }}</p>
+        {% endif %}
+        {% if action_result.response_text %}
+        <pre>{{ action_result.response_text }}</pre>
+        {% endif %}
+      </section>
+      {% endif %}
+    </main>
+  </body>
+</html>
