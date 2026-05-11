@@ -8,10 +8,9 @@ if [[ ! -d "$SCRIPT_DIR/.venv" ]]; then
   /usr/bin/python3 -m venv "$SCRIPT_DIR/.venv"
 fi
 
-source "$SCRIPT_DIR/.venv/bin/activate"
+VENV_PYTHON="$SCRIPT_DIR/.venv/bin/python"
 
-python -m pip install --upgrade pip >/dev/null
-python -m pip install -r "$SCRIPT_DIR/requirements.txt" pyinstaller >/dev/null
+"$VENV_PYTHON" -m pip install -r "$SCRIPT_DIR/requirements.txt" pyinstaller
 
 rm -rf "$SCRIPT_DIR/build" "$SCRIPT_DIR/dist"
 

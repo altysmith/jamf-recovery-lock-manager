@@ -8,10 +8,11 @@ if [[ ! -d "$SCRIPT_DIR/.venv" ]]; then
   /usr/bin/python3 -m venv "$SCRIPT_DIR/.venv"
 fi
 
-source "$SCRIPT_DIR/.venv/bin/activate"
+VENV_PYTHON="$SCRIPT_DIR/.venv/bin/python"
 
-python -m pip install --upgrade pip >/dev/null
-python -m pip install -r "$SCRIPT_DIR/requirements.txt" >/dev/null
+if ! "$VENV_PYTHON" -c "import flask" >/dev/null 2>&1; then
+  "$VENV_PYTHON" -m pip install -r "$SCRIPT_DIR/requirements.txt"
+fi
 
 if [[ -f "$SCRIPT_DIR/.env" ]]; then
   set -a
@@ -30,4 +31,4 @@ echo "Jamf Recovery Lock Manager"
 echo "Open http://127.0.0.1:${PORT} in your browser"
 echo
 
-python "$SCRIPT_DIR/app.py"
+"$VENV_PYTHON" "$SCRIPT_DIR/app.py"
